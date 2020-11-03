@@ -1,0 +1,26 @@
+"""
+https://github.com/petercour/python-notifications-linux
+"""
+from pathlib import Path
+from typing import Final
+
+from pycoingecko import CoinGeckoAPI
+
+from .notification import Notification
+
+IMG_DIR: Final[Path] = Path(".") / "img"
+CRYPTOS: Final[list[str]] = Path("cryptos.txt").read_text().splitlines()
+FIAT_SYMBOL: Final[str] = "usd"
+
+
+def main() -> None:
+    cg = CoinGeckoAPI()
+    data = cg.get_price(ids=", ".join(CRYPTOS), vs_currencies=FIAT_SYMBOL)
+    for crypto, price in data.items():
+        icon = IMG_DIR / f"{crypto}.png"
+        n = Notification(crypto, f"$ {price[FIAT_SYMBOL]}", icon=icon)
+        n.display()
+
+
+if __name__ == "__main__":
+    main()
